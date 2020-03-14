@@ -94,6 +94,9 @@ services:
       - "9222:9222"
 
   # WHISK INVOKER AGENT
+  actioncache:
+    image: redis:2.8
+    command: redis-server --requirepass ${ACTIONCACHE_PASSWORD:thisIsASecretPassword}
   invoker:
     image: ${DOCKER_IMAGE_PREFIX:-openwhisk}/invoker:${DOCKER_IMAGE_TAG:-latest}
     command: /bin/sh -c "exec /init.sh --id 0 >> /logs/invoker-local_logs.log 2>&1"
@@ -101,16 +104,19 @@ services:
     pid: "host"
     userns_mode: "host"
     links:
+      - actioncache:actioncache.docker
       - db:db.docker
       - kafka:kafka.docker
       - zookeeper:zookeeper.docker
     depends_on:
       - db
       - kafka
+      - actioncache
     env_file:
       - ./docker-whisk-controller.env # env vars shared
       - ~/tmp/openwhisk/local.env     # generated during make setup
     environment:
+      ACTIONCACHE_PASSWORD: ${ACTIONCACHE_PASSWORD:thisIsASecretPassword}
       COMPONENT_NAME: invoker
       SERVICE_NAME: invoker0
       PORT: 8085
