@@ -262,10 +262,11 @@ restart-invoker:
 	echo "waiting for the invoker to be marked Healthy ... "
 	until (curl --silent http://$(DOCKER_HOST_IP):8888/invokers | grep "up"); do printf '.'; sleep 5; done
 
+.PHONY: restart-actioncache
 restart-actioncache:
 	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f actioncache
 	sleep 2
-	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up actioncache 2>&1 >> $(TMP_HOME)/tmp/openwhisk/docker-compose.log &
+	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up actioncache 2>&1 >> $(TMP_HOME)/tmp/openwhisk/docker-compose.log
 	sleep 2
 
 .PHONY: start-docker-compose

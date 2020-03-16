@@ -96,7 +96,7 @@ services:
   # WHISK INVOKER AGENT
   actioncache:
     image: redis:2.8
-    command: redis-server --requirepass ${ACTIONCACHE_PASSWORD:thisIsASecretPassword}
+    command: redis-server --requirepass ${ACTIONCACHE_PASSWORD:-thisIsASecretPassword}
   invoker:
     image: ${DOCKER_IMAGE_PREFIX:-openwhisk}/invoker:${DOCKER_IMAGE_TAG:-latest}
     command: /bin/sh -c "exec /init.sh --id 0 >> /logs/invoker-local_logs.log 2>&1"
@@ -116,7 +116,7 @@ services:
       - ./docker-whisk-controller.env # env vars shared
       - ~/tmp/openwhisk/local.env     # generated during make setup
     environment:
-      ACTIONCACHE_PASSWORD: ${ACTIONCACHE_PASSWORD:thisIsASecretPassword}
+      ACTIONCACHE_PASSWORD: ${ACTIONCACHE_PASSWORD:-thisIsASecretPassword}
       COMPONENT_NAME: invoker
       SERVICE_NAME: invoker0
       PORT: 8085
@@ -135,6 +135,7 @@ services:
       EDGE_HOST_APIPORT: 443
 
       CONFIG_whisk_containerFactory_containerArgs_network: openwhisk_default
+      CONFIG_whisk_containerFactory_containerArgs_extraEnvVars_1: ACTIONCACHE_PASSWORD=${ACTIONCACHE_PASSWORD:-thisIsASecretPassword}
 
       WHISK_API_HOST_NAME: ${DOCKER_COMPOSE_HOST}
     volumes:
